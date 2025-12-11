@@ -78,7 +78,7 @@
             z-index: 100;
         }
         
-        /* NEW: Header Max-Width Container */
+        /* Header Max-Width Container */
         .header-content {
             max-width: 1400px;
             margin: 0 auto;
@@ -206,7 +206,9 @@
         /* Specific header colors for flair */
         #community-pulse-feed h2 { color: var(--secondary-accent-1); }
         #branding-advertising-feed h2 { color: var(--secondary-accent-2); }
-        #fintech-new-feed h2, #tech-culture-feed h2 { color: var(--secondary-accent-3); }
+        /* Updated FinTech (Enterprise Tech) */
+        #fintech-new-feed h2 { color: var(--secondary-accent-3); }
+        #tech-culture-feed h2 { color: var(--secondary-accent-3); }
         #ad-tech-feed h2 { color: var(--secondary-accent-4); }
 
 
@@ -382,14 +384,22 @@
                 <button id="toggle-core-marketing" class="control-button active" data-target="core-marketing-feed">Core Marketing</button>
                 <button id="toggle-branding" class="control-button active" data-target="branding-advertising-feed">Branding & Campaigns</button>
                 <button id="toggle-adtech" class="control-button active" data-target="ad-tech-feed">Ad Technology</button>
-                <button id="toggle-fintech" class="control-button active" data-target="fintech-new-feed">FinTech & Finance</button>
+                <button id="toggle-fintech" class="control-button active" data-target="fintech-new-feed">Enterprise Tech</button>
                 <button id="toggle-tech" class="control-button active" data-target="tech-culture-feed">Tech & Culture</button>
-                <button id="toggle-community" class="control-button active" data-target="community-pulse-feed">Community Pulse (Reddit)</button>
+                <button id="toggle-community" class="control-button active" data-target="community-pulse-feed">Community Pulse</button>
                 <button id="reset-hidden-button" class="control-button" onclick="resetHiddenTiles()">Reset Hidden Tiles</button>
             </div>
         </div>
     </header>
     
+    <div id="ai-insight-panel" class="feed-section">
+        <h2>✨ AI Strategy Summary</h2>
+        <div id="ai-summary-content">
+            <p>Awaiting news articles to load for AI analysis...</p>
+        </div>
+    </div>
+
+
     <div id="core-marketing-feed" class="feed-section">
         <h2>📈 Core Marketing (Marketing Dive)</h2>
         <div class="news-grid-container" data-feed-id="core-marketing-feed">
@@ -405,16 +415,16 @@
     </div>
 
     <div id="ad-tech-feed" class="feed-section">
-        <h2>⚙️ Ad Technology (AdExchanger, Ad Tech Daily, VideoWeek...)</h2>
+        <h2>⚙️ Ad Technology (AdExchanger, VideoWeek...)</h2>
         <div class="news-grid-container" data-feed-id="ad-tech-feed">
             <div class="news-grid">Loading Ad Technology...</div>
         </div>
     </div>
 
     <div id="fintech-new-feed" class="feed-section">
-        <h2>💰 FinTech & Finance (Fintech News Hong Kong)</h2>
+        <h2>💰 Enterprise Tech & FinTech (CIO Dive, Banking Dive)</h2>
         <div class="news-grid-container" data-feed-id="fintech-new-feed">
-            <div class="news-grid">Loading FinTech & Finance...</div>
+            <div class="news-grid">Loading Enterprise Tech & FinTech...</div>
         </div>
     </div>
 
@@ -443,7 +453,11 @@
             { id: 'ad-tech-feed', url: 'https://adtechdaily.com/feed/', source: 'Ad Tech Daily' },
             { id: 'ad-tech-feed', url: 'https://videoweek.com/feed/', source: 'VideoWeek' },
             { id: 'ad-tech-feed', url: 'https://advertisemint.com/feed/', source: 'AdvertiseMint' },
-            { id: 'fintech-new-feed', url: 'https://fintechnews.hk/feed/', source: 'Fintech News HK' }, 
+            
+            // --- UPDATED FINTECH SECTION ---
+            { id: 'fintech-new-feed', url: 'https://www.ciodive.com/feed/', source: 'CIO Dive' }, // New Feed 1
+            { id: 'fintech-new-feed', url: 'https://www.bankingdive.com/topic/fintech/feed/', source: 'Banking Dive' }, // New Feed 2
+            
             { id: 'tech-culture-feed', url: 'https://www.wired.com/feed/rss', source: 'Wired' }, 
         ];
         
@@ -458,7 +472,7 @@
         const RSS_TO_JSON_PROXY_BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
         let HIDDEN_LINKS = new Set();
         
-        // --- THEME LOGIC (New Triple Mode) ---
+        // --- THEME LOGIC (Triple Mode) ---
         const THEMES = ['light-mode', 'dark-mode', 'midnight-mode'];
         const THEME_LABELS = {
             'light-mode': '☀️ Switch to Dark Mode',
@@ -588,6 +602,52 @@
             });
         }
 
+        // --- NEW: AI SUMMARY INTEGRATION FUNCTION ---
+        async function generateAISummary() {
+            const summaryDiv = document.getElementById('ai-summary-content');
+            
+            // Check if we are running locally (file://) or via the secure server (http://localhost:3000)
+            if (window.location.protocol === 'file:') {
+                 summaryDiv.innerHTML = `<p><strong>Note:</strong> To use the AI Strategy Summary, you must run this file 
+                 via your secure Node.js server (<code>http://localhost:3000</code>). 
+                 The AI endpoint is not accessible from a local <code>file://</code> URL.</p>`;
+                 return;
+            }
+
+            try {
+                // Get the HTML content of the main feeds area
+                // We grab the parent of the first feed, which encompasses all news feeds.
+                const feedsContainer = document.getElementById('core-marketing-feed').parentElement;
+                const htmlContent = feedsContainer ? feedsContainer.outerHTML : document.body.outerHTML;
+
+                summaryDiv.innerHTML = `<p>Generating AI summary and strategic recommendations...</p>`;
+
+                // Call the secure server-side proxy endpoint
+                const response = await fetch('/api/summarize-news', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ htmlContent: htmlContent }),
+                });
+
+                const data = await response.json();
+
+                if (response.status !== 200 || data.error) {
+                    summaryDiv.innerHTML = `<p style="color: var(--hide-color);">Error generating summary. Check Node.js console. (Server Status: ${response.status})</p>`;
+                    console.error("AI Proxy Error:", data.error || 'Unknown server error.');
+                    return;
+                }
+
+                // Display the clean AI response (assuming the server returns formatted text)
+                summaryDiv.innerHTML = data.summary.replace(/\n/g, '<br>');
+
+            } catch (e) {
+                summaryDiv.innerHTML = `<p style="color: var(--hide-color);">Could not connect to AI server. Ensure <code>node server.js</code> is running.</p>`;
+                console.error("Frontend Fetch Error:", e);
+            }
+        }
+        // --- END AI SUMMARY FUNCTION ---
+
+
         // --- FETCH & RENDER LOGIC ---
 
         async function fetchAndRenderAllFeeds() {
@@ -595,6 +655,10 @@
             const fetchEditorialPromises = EDITORIAL_FEEDS.map(feed => fetchAndRenderFeed(feed.url, feed.id, feed.source, false));
             await Promise.all(fetchEditorialPromises);
             
+            // Trigger AI Summary after the main editorial feeds are loaded
+            // This ensures the AI has content to analyze
+            generateAISummary();
+
             // Reddit Feeds setup
             const communityContainer = document.getElementById('community-pulse-container');
             let communityGridHTML = '';
@@ -680,7 +744,7 @@
             card.innerHTML = `
                 <div class="card-controls">
                     <span>Source: ${sourceName}</span>
-                    <!--button onclick="hideTileForever(this, '${item.link}')">Hide Forever</button-->
+                    <button onclick="hideTileForever(this, '${item.link}')">Hide Forever</button>
                 </div>
                 <div>
                     <h4><a href="${item.link}" target="_blank" rel="noopener noreferrer">${cleanTitle}</a></h4>
