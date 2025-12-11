@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketing & Creative News Hub</title>
+    <title>Brand, Tech, & FinTech News Hub</title>
     
     <style>
         /* --- CSS Styling and Variables --- */
@@ -13,7 +13,7 @@
             --accent-color: #3498db;
             --secondary-accent-1: #2ecc71; /* SEO */
             --secondary-accent-2: #e67e22; /* Branding/Adweek */
-            --secondary-accent-3: #e74c3c; /* Creative */
+            --secondary-accent-3: #16a085; /* FinTech/Tech */
             --background-color: #ecf0f1;
             --card-background: #ffffff;
             --text-color: #34495e;
@@ -26,8 +26,8 @@
             --primary-color: #9b59b6;
             --accent-color: #3498db;
             --secondary-accent-1: #1abc9c;
-            --secondary-accent-2: #d35400; /* Darker Adweek */
-            --secondary-accent-3: #c0392b;
+            --secondary-accent-2: #d35400;
+            --secondary-accent-3: #1abc9c;
             --background-color: #2c3e50;
             --card-background: #34495e;
             --text-color: #ecf0f1;
@@ -143,7 +143,8 @@
         /* Specific header colors for flair */
         #seo-search-feed h2 { border-bottom-color: var(--secondary-accent-1); color: var(--secondary-accent-1); }
         #branding-advertising-feed h2 { border-bottom-color: var(--secondary-accent-2); color: var(--secondary-accent-2); }
-        #creative-content-feed h2 { border-bottom-color: var(--secondary-accent-3); color: var(--secondary-accent-3); }
+        #fintech-finance-feed h2 { border-bottom-color: var(--secondary-accent-3); color: var(--secondary-accent-3); }
+        #tech-culture-feed h2 { border-bottom-color: var(--secondary-accent-3); color: var(--secondary-accent-3); }
 
 
         .news-grid {
@@ -194,7 +195,7 @@
 <body class="light-mode">
     <header>
         <div class="header-top">
-            <h1>Marketing & Creative News Hub</h1>
+            <h1>Brand, Tech, & FinTech News Hub</h1>
             <button id="theme-toggle" class="control-button">Switch to Dark Mode</button>
         </div>
         
@@ -205,9 +206,9 @@
         <div class="controls-row">
             <button id="toggle-core-marketing" class="control-button active" data-target="core-marketing-feed">Core Marketing</button>
             <button id="toggle-branding" class="control-button active" data-target="branding-advertising-feed">Branding & Advertising</button>
-            <button id="toggle-creative" class="control-button active" data-target="creative-content-feed">Creative & Content</button>
+            <button id="toggle-fintech" class="control-button active" data-target="fintech-finance-feed">FinTech & Finance</button>
+            <button id="toggle-tech" class="control-button active" data-target="tech-culture-feed">Tech & Culture (Wired)</button>
             <button id="toggle-seo" class="control-button active" data-target="seo-search-feed">SEO & Search</button>
-            <button id="toggle-tech" class="control-button active" data-target="tech-webdev-feed">Tech & Webdev</button>
         </div>
     </header>
     
@@ -221,19 +222,19 @@
         <div class="news-grid">Loading Adweek...</div>
     </div>
 
-    <div id="creative-content-feed" class="feed-section">
-        <h2>🖋️ Creative & Content Strategy (A List Apart)</h2>
-        <div class="news-grid">Loading Creative...</div>
+    <div id="fintech-finance-feed" class="feed-section">
+        <h2>💰 FinTech & Finance (Fintech Futures)</h2>
+        <div class="news-grid">Loading FinTech Futures...</div>
     </div>
 
+    <div id="tech-culture-feed" class="feed-section">
+        <h2>🌐 Tech & Culture (Wired)</h2>
+        <div class="news-grid">Loading Wired...</div>
+    </div>
+    
     <div id="seo-search-feed" class="feed-section">
         <h2>🔍 SEO & Search Marketing (Search Engine Journal)</h2>
         <div class="news-grid">Loading SEO...</div>
-    </div>
-    
-    <div id="tech-webdev-feed" class="feed-section">
-        <h2>⚡ Tech & Web Development (TLDR)</h2>
-        <div class="news-grid">Loading Tech...</div>
     </div>
     
     <script>
@@ -241,10 +242,10 @@
 
         const FEEDS = [
             { id: 'core-marketing-feed', url: 'https://www.marketingdive.com/feeds/news' },
-            { id: 'branding-advertising-feed', url: 'https://www.adweek.com/feed/' }, // New reliable feed
-            { id: 'creative-content-feed', url: 'https://alistapart.com/main/feed/' },
-            { id: 'seo-search-feed', url: 'https://www.searchenginejournal.com/feed/' },
-            { id: 'tech-webdev-feed', url: 'https://www.tldr.tech/rss' }
+            { id: 'branding-advertising-feed', url: 'https://www.adweek.com/feed/' }, 
+            { id: 'fintech-finance-feed', url: 'https://www.fintechfutures.com/feed/' }, 
+            { id: 'tech-culture-feed', url: 'https://www.wired.com/feed/rss' }, // Strategic Tech/Brand focus
+            { id: 'seo-search-feed', url: 'https://www.searchenginejournal.com/feed/' }
         ];
         
         const RSS_TO_JSON_PROXY_BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
@@ -341,8 +342,7 @@
             const section = document.getElementById(targetId);
 
             if (section.classList.contains('hidden')) {
-                // Ensure section is visible for search filtering to work correctly
-                section.style.maxHeight = '2000px'; // Give it a large height for transition
+                section.style.maxHeight = '2000px'; 
                 section.classList.remove('hidden');
                 button.classList.add('active');
             } else {
