@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Industry News Dashboard</title>
+    
+    <style>
+        /* --- CSS Styling and Variables --- */
+        :root {
+            /* Light Theme Defaults */
+            --primary-color: #2c3e50; /* Dark Blue - Header */
+            --accent-color: #3498db;  /* Bright Blue - Links */
+            --secondary-accent-1: #2ecc71; /* Green - SEJ */
+            --secondary-accent-2: #f1c40f; /* Yellow - Brand New */
+            --background-color: #ecf0f1; /* Light Gray */
+            --card-background: #ffffff;
+            --text-color: #34495e;
+            --secondary-text-color: #7f8c8d;
+            --border-color: #bdc3c7;
+        }
+
+        /* Dark Mode Variables */
+        body.dark-mode {
+            --primary-color: #9b59b6; /* Purple Accent - Header */
+            --accent-color: #3498db;
+            --secondary-accent-1: #1abc9c; /* Teal - SEJ */
+            --secondary-accent-2: #e67e22; /* Orange - Brand New */
+            --background-color: #2c3e50; /* Dark Background */
+            --card-background: #34495e; /* Slightly Lighter Dark Card */
+            --text-color: #ecf0f1; /* Light Text */
+            --secondary-text-color: #bdc3c7;
+            --border-color: #49627a;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Header and Dark Mode Toggle */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 { margin: 0; }
+
+        #theme-toggle {
+            padding: 8px 15px;
+            border: 1px solid white;
+            background-color: transparent;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.9em;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        #theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Feed Sections */
+        .feed-section {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feed-section h2 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-size: 1.5em;
+        }
+
+        body.dark-mode .feed-section h2 {
+            border-bottom-color: var(--accent-color);
+            color: var(--text-color);
+        }
+        
+        /* Specific header colors for flair */
+        #search-engine-journal-feed h2 {
+            border-bottom-color: var(--secondary-accent-1);
+            color: var(--secondary-accent-1);
+        }
+        #brand-new-feed h2 {
+            border-bottom-color: var(--secondary-accent-2);
+            color: var(--secondary-accent-2);
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .news-card {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s, border-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .news-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .news-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.15em;
+            line-height: 1.4;
+        }
+
+        .news-card h3 a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .news-card h3 a:hover {
+            color: var(--primary-color);
+        }
+
+        body.dark-mode .news-card h3 a:hover {
+            color: white;
+        }
+
+        .news-card .date {
+            font-size: 0.8em;
+            color: var(--secondary-text-color);
+            margin-top: 10px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+
+        .news-card .description {
+            font-size: 0.9em;
+            color: var(--secondary-text-color);
+            line-height: 1.5;
+            margin-top: 0;
+            flex-grow: 1; 
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <header>
+        <h1>Industry News Dashboard (5 Feeds)</h1>
+        <button id="theme-toggle">Switch to Dark Mode</button>
+    </header>
+    
+    <div id="marketing-dive-feed" class="feed-section">
+        <h2>📈 Marketing Dive (Daily Industry News)</h2>
+        <div class="news-grid">Loading Marketing Dive...</div>
+    </div>
+
+    <div id="search-engine-journal-feed" class="feed-section">
+        <h2>🔍 Search Engine Journal (SEO & Search Marketing)</h2>
+        <div class="news-grid">Loading Search Engine Journal...</div>
+    </div>
+
+    <div id="brand-new-feed" class="feed-section">
+        <h2>🎨 Brand New (Iconic Brand & Corporate Design)</h2>
+        <div class="news-grid">Loading Brand New...</div>
+    </div>
+
+    <div id="alist-apart-feed" class="feed-section">
+        <h2>💻 A List Apart (Creatives, Design, & Web Content)</h2>
+        <div class="news-grid">Loading A List Apart...</div>
+    </div>
+    
+    <div id="tldr-feed" class="feed-section">
+        <h2>⚡ TLDR (Webdev, Tech, & General Design)</h2>
+        <div class="news-grid">Loading TLDR...</div>
+    </div>
+    
+    <script>
+        /* --- JavaScript for Fetching, Rendering, and Dark Mode --- */
+
+        // Define the five feeds we want to fetch
+        const FEEDS = [
+            { id: 'marketing-dive-feed', url: 'https://www.marketingdive.com/feeds/news' },
+            { id: 'search-engine-journal-feed', url: 'https://www.searchenginejournal.com/feed/' },
+            { id: 'brand-new-feed', url: 'http://feeds.feedburner.com/BrandNew' },
+            { id: 'alist-apart-feed', url: 'https://alistapart.com/main/feed/' },
+            { id: 'tldr-feed', url: 'https://www.tldr.tech/rss' }
+        ];
+        
+        // Base URL for the public proxy
+        const RSS_TO_JSON_PROXY_BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
+        
+        /**
+         * Fetches and renders a single RSS feed into a specified container.
+         */
+        async function fetchAndRenderFeed(feedUrl, containerId) {
+            const container = document.querySelector(`#${containerId} .news-grid`);
+            
+            try {
+                const proxyUrl = `${RSS_TO_JSON_PROXY_BASE}${encodeURIComponent(feedUrl)}`;
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+
+                if (data.status !== 'ok' || !data.items) {
+                    throw new Error('Failed to fetch feed data or feed is empty.');
+                }
+
+                container.innerHTML = ''; // Clear loading message
+                
+                // Render the top 10 items
+                data.items.slice(0, 10).forEach(item => {
+                    const card = createNewsCard(item);
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error(`Error fetching or rendering feed for ${containerId}:`, error);
+                container.innerHTML = `<p style="color: red; text-align: center; width: 100%;">Error loading feed. (Status: ${error.message})</p>`;
+            }
+        }
+
+        /**
+         * Creates an HTML card element for a single news item.
+         */
+        function createNewsCard(item) {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            
+            // Format the date
+            const pubDate = new Date(item.pubDate).toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric'
+            });
+
+            // Safely extract text content for description and limit length
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = item.description || item.content || 'Click link for details.';
+            
+            let descriptionText = tempDiv.querySelector('p') 
+                ? tempDiv.querySelector('p').textContent.trim()
+                : tempDiv.textContent.trim();
+            
+            if (descriptionText.length > 180) {
+                descriptionText = descriptionText.substring(0, 177) + '...';
+            }
+
+
+            card.innerHTML = `
+                <div>
+                    <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a></h3>
+                    <p class="description">${descriptionText}</p>
+                </div>
+                <p class="date">Published: ${pubDate}</p>
+            `;
+            return card;
+        }
+
+        /**
+         * Toggles between light and dark mode and saves preference.
+         */
+        function setupDarkModeToggle() {
+            const body = document.body;
+            const toggleButton = document.getElementById('theme-toggle');
+
+            const savedTheme = localStorage.getItem('theme') || 'light-mode';
+            body.className = savedTheme;
+            toggleButton.textContent = savedTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+
+            toggleButton.addEventListener('click', () => {
+                const newTheme = body.classList.contains('dark-mode') ? 'light-mode' : 'dark-mode';
+                body.className = newTheme;
+                localStorage.setItem('theme', newTheme);
+                toggleButton.textContent = newTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+            });
+        }
+
+
+        // --- Initialize Dashboard ---
+        
+        // 1. Setup dark mode
+        setupDarkModeToggle();
+
+        // 2. Fetch and render all defined feeds concurrently
+        FEEDS.forEach(feed => {
+            fetchAndRenderFeed(feed.url, feed.id);
+        });
+    </script>
+</body>
+</html>
