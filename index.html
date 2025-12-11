@@ -176,11 +176,19 @@
 
         /* --- VIEW CONTROLS CSS --- */
         
-        /* FIX: Ensures the news-grid container is always the multi-column parent in Grid View */
+        /* Default: GRID VIEW (Multi-Column) */
         .news-grid {
             display: grid;
+            /* Enforce responsive grid columns */
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
+        }
+        
+        /* news-card defaults */
+        .news-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         /* LIST VIEW: Overrides Grid for editorial sections when body has list-view class */
@@ -257,10 +265,6 @@
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: all 0.2s;
-            /* Ensure cards are properly sized by the grid container */
-            display: flex; 
-            flex-direction: column;
-            justify-content: space-between;
         }
         
         .news-card.hidden-tile {
@@ -344,27 +348,37 @@
     
     <div id="core-marketing-feed" class="feed-section">
         <h2>📈 Core Marketing (Marketing Dive)</h2>
-        <div class="news-grid">Loading Core Marketing...</div>
+        <div class="news-grid-container" data-feed-id="core-marketing-feed">
+            <div class="news-grid">Loading Core Marketing...</div>
+        </div>
     </div>
 
     <div id="branding-advertising-feed" class="feed-section">
         <h2>⭐️ Branding & Campaigns (Adweek, AdPulp, More...)</h2>
-        <div class="news-grid">Loading Branding & Campaigns...</div>
+        <div class="news-grid-container" data-feed-id="branding-advertising-feed">
+            <div class="news-grid">Loading Branding & Campaigns...</div>
+        </div>
     </div>
 
     <div id="ad-tech-feed" class="feed-section">
         <h2>⚙️ Ad Technology (AdExchanger, Ad Tech Daily, VideoWeek...)</h2>
-        <div class="news-grid">Loading Ad Technology...</div>
+        <div class="news-grid-container" data-feed-id="ad-tech-feed">
+            <div class="news-grid">Loading Ad Technology...</div>
+        </div>
     </div>
 
     <div id="fintech-new-feed" class="feed-section">
         <h2>💰 FinTech & Finance (Fintech News Hong Kong)</h2>
-        <div class="news-grid">Loading FinTech & Finance...</div>
+        <div class="news-grid-container" data-feed-id="fintech-new-feed">
+            <div class="news-grid">Loading FinTech & Finance...</div>
+        </div>
     </div>
 
     <div id="tech-culture-feed" class="feed-section">
         <h2>🌐 Tech & Culture (Wired)</h2>
-        <div class="news-grid">Loading Tech & Culture...</div>
+        <div class="news-grid-container" data-feed-id="tech-culture-feed">
+            <div class="news-grid">Loading Tech & Culture...</div>
+        </div>
     </div>
     
     <div id="community-pulse-feed" class="feed-section">
@@ -498,7 +512,8 @@
 
 
         async function fetchAndRenderFeed(feedUrl, containerId, sourceName, isReddit) {
-            const container = document.getElementById(containerId);
+            // FIX: Get the INNER .news-grid container
+            const gridContainer = document.getElementById(containerId).querySelector('.news-grid') || document.getElementById(containerId);
             
             try {
                 const proxyUrl = `${RSS_TO_JSON_PROXY_BASE}${encodeURIComponent(feedUrl)}`;
@@ -509,21 +524,22 @@
                     throw new Error('Failed to fetch feed data or feed is empty.');
                 }
 
-                if (container.textContent.includes('Loading')) {
-                    container.innerHTML = ''; 
+                // FIX: Only clear the content *inside* the grid container, preserving the H2 and the parent structure
+                if (gridContainer.textContent.includes('Loading')) {
+                    gridContainer.innerHTML = ''; 
                 }
                 
                 data.items.slice(0, 10).forEach(item => {
                     const card = createNewsCard(item, sourceName, isReddit);
                     if (card) { 
-                        container.appendChild(card);
+                        gridContainer.appendChild(card);
                     }
                 });
 
             } catch (error) {
                 console.error(`Error fetching or rendering feed for ${containerId} (${sourceName}):`, error);
-                if (container.textContent.includes('Loading')) {
-                    container.innerHTML = `<p style="color: red; text-align: center; width: 100%;">Error loading feed: ${sourceName}</p>`;
+                if (gridContainer.textContent.includes('Loading')) {
+                    gridContainer.innerHTML = `<p style="color: red; text-align: center; width: 100%;">Error loading feed: ${sourceName}</p>`;
                 }
             }
         }
@@ -586,8 +602,8 @@
                 const description = card.getAttribute('data-search-desc');
                 
                 if (title.includes(filter) || description.includes(filter)) {
-                    // In grid view, cards display as flex (column)
-                    card.style.display = 'flex'; 
+                    // Revert display to default grid/list behavior
+                    card.style.display = ''; 
                 } else {
                     card.style.display = 'none'; 
                 }
