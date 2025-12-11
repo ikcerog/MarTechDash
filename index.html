@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personalized Brand, Tech, & FinTech News Hub</title>
+    <title>Personalized AdTech & Branding Hub</title>
     
     <style>
         /* --- CSS Styling and Variables --- */
@@ -14,6 +14,7 @@
             --secondary-accent-1: #2ecc71; /* Community (Reddit) */
             --secondary-accent-2: #e67e22; /* Branding/Adweek */
             --secondary-accent-3: #16a085; /* FinTech/Tech */
+            --secondary-accent-4: #f39c12; /* AdTech */
             --background-color: #ecf0f1;
             --card-background: #ffffff;
             --text-color: #34495e;
@@ -29,6 +30,7 @@
             --secondary-accent-1: #1abc9c;
             --secondary-accent-2: #d35400;
             --secondary-accent-3: #1abc9c;
+            --secondary-accent-4: #e67e22;
             --background-color: #2c3e50;
             --card-background: #34495e;
             --text-color: #ecf0f1;
@@ -155,6 +157,7 @@
         #community-pulse-feed h2 { border-bottom-color: var(--secondary-accent-1); color: var(--secondary-accent-1); }
         #branding-advertising-feed h2 { border-bottom-color: var(--secondary-accent-2); color: var(--secondary-accent-2); }
         #fintech-new-feed h2, #tech-culture-feed h2 { border-bottom-color: var(--secondary-accent-3); color: var(--secondary-accent-3); }
+        #ad-tech-feed h2 { border-bottom-color: var(--secondary-accent-4); color: var(--secondary-accent-4); }
 
 
         /* *** CARD GRID FIX *** */
@@ -165,7 +168,7 @@
         }
 
         .reddit-subsection {
-            margin-top: 10px;
+            margin-bottom: 20px;
             padding: 10px;
             border: 1px dashed var(--border-color);
             border-radius: 4px;
@@ -184,7 +187,6 @@
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: all 0.2s;
-            /* Flex layout ensures description pushes date to bottom */
             display: flex; 
             flex-direction: column;
             justify-content: space-between;
@@ -201,8 +203,15 @@
         
         .card-controls {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 5px;
+        }
+        
+        .card-controls span {
+            font-size: 0.7em;
+            color: var(--secondary-text-color);
+            opacity: 0.8;
         }
         
         .card-controls button {
@@ -238,7 +247,7 @@
 <body class="light-mode">
     <header>
         <div class="header-top">
-            <h1>Personalized Brand, Tech, & FinTech News Hub</h1>
+            <h1>Personalized AdTech & Branding Hub</h1>
             <button id="theme-toggle" class="control-button">Switch to Dark Mode</button>
         </div>
         
@@ -248,7 +257,8 @@
         
         <div class="controls-row">
             <button id="toggle-core-marketing" class="control-button active" data-target="core-marketing-feed">Core Marketing</button>
-            <button id="toggle-branding" class="control-button active" data-target="branding-advertising-feed">Branding & Advertising</button>
+            <button id="toggle-branding" class="control-button active" data-target="branding-advertising-feed">Branding & Campaigns</button>
+            <button id="toggle-adtech" class="control-button active" data-target="ad-tech-feed">Ad Technology</button>
             <button id="toggle-fintech" class="control-button active" data-target="fintech-new-feed">FinTech & Finance</button>
             <button id="toggle-tech" class="control-button active" data-target="tech-culture-feed">Tech & Culture</button>
             <button id="toggle-community" class="control-button active" data-target="community-pulse-feed">Community Pulse (Reddit)</button>
@@ -262,8 +272,13 @@
     </div>
 
     <div id="branding-advertising-feed" class="feed-section">
-        <h2>⭐️ Branding & Advertising (Adweek)</h2>
-        <div class="news-grid">Loading Adweek...</div>
+        <h2>⭐️ Branding & Campaigns (Adweek, AdPulp, More...)</h2>
+        <div class="news-grid">Loading Branding & Campaigns...</div>
+    </div>
+
+    <div id="ad-tech-feed" class="feed-section">
+        <h2>⚙️ Ad Technology (AdExchanger, Ad Tech Daily, VideoWeek...)</h2>
+        <div class="news-grid">Loading Ad Technology...</div>
     </div>
 
     <div id="fintech-new-feed" class="feed-section">
@@ -286,10 +301,25 @@
         /* --- JavaScript for Fetching, Rendering, Dark Mode, Filtering, Toggling, and PERSISTENCE --- */
 
         const EDITORIAL_FEEDS = [
-            { id: 'core-marketing-feed', url: 'https://www.marketingdive.com/feeds/news' },
-            { id: 'branding-advertising-feed', url: 'https://www.adweek.com/feed/' }, 
-            { id: 'fintech-new-feed', url: 'https://thefinancialbrand.com/feed/' }, 
-            { id: 'tech-culture-feed', url: 'https://www.wired.com/feed/rss' }, 
+            // Core Marketing
+            { id: 'core-marketing-feed', url: 'https://www.marketingdive.com/feeds/news', source: 'Marketing Dive' },
+            
+            // Branding & Campaigns (3 Feeds)
+            { id: 'branding-advertising-feed', url: 'https://www.adweek.com/feed/', source: 'Adweek' }, 
+            { id: 'branding-advertising-feed', url: 'https://www.moreaboutadvertising.com/feed/', source: 'More About Adv.' },
+            { id: 'branding-advertising-feed', url: 'https://feeds.feedburner.com/Adpulp', source: 'AdPulp' },
+            
+            // Ad Technology (4 Feeds)
+            { id: 'ad-tech-feed', url: 'feeds.feedburner.com/ad-exch..', source: 'AdExchanger' },
+            { id: 'ad-tech-feed', url: 'https://adtechdaily.com/feed/', source: 'Ad Tech Daily' },
+            { id: 'ad-tech-feed', url: 'https://videoweek.com/feed/', source: 'VideoWeek' },
+            { id: 'ad-tech-feed', url: 'https://advertisemint.com/feed/', source: 'AdvertiseMint' },
+            
+            // FinTech & Finance
+            { id: 'fintech-new-feed', url: 'https://thefinancialbrand.com/feed/', source: 'The Financial Brand' }, 
+            
+            // Tech & Culture
+            { id: 'tech-culture-feed', url: 'https://www.wired.com/feed/rss', source: 'Wired' }, 
         ];
         
         const REDDIT_FEEDS = [
@@ -348,28 +378,25 @@
          */
         async function fetchAndRenderAllFeeds() {
             // Editorial Feeds
-            EDITORIAL_FEEDS.forEach(feed => {
-                fetchAndRenderFeed(feed.url, feed.id, false); // Not a Reddit feed
-            });
+            const fetchEditorialPromises = EDITORIAL_FEEDS.map(feed => fetchAndRenderFeed(feed.url, feed.id, feed.source, false));
+            await Promise.all(fetchEditorialPromises);
             
             // Reddit Feeds
-            const communityContainer = document.getElementById('community-pulse-feed');
-            let communityGridHTML = '<div id="community-pulse-container">';
+            const communityContainer = document.getElementById('community-pulse-container');
+            let communityGridHTML = '';
             
             for (const feed of REDDIT_FEEDS) {
-                // Fetch and render data directly into a sub-grid element
                 const subredditId = feed.id.split('/')[1];
                 communityGridHTML += `<div class="reddit-subsection">
                                           <h3>r/${subredditId}</h3>
                                           <div class="news-grid" id="${feed.id}-grid">Loading...</div>
                                       </div>`;
             }
-            communityGridHTML += '</div>';
-            communityContainer.querySelector('div').innerHTML = communityGridHTML;
+            communityContainer.innerHTML = communityGridHTML;
 
             // Run the fetches sequentially/in parallel for each reddit feed
             REDDIT_FEEDS.forEach(feed => {
-                 fetchAndRenderFeed(feed.url, `${feed.id}-grid`, true);
+                 fetchAndRenderFeed(feed.url, `${feed.id}-grid`, feed.id, true);
             });
         }
 
@@ -377,7 +404,7 @@
         /**
          * Fetches and renders a single RSS feed into a specified container.
          */
-        async function fetchAndRenderFeed(feedUrl, containerId, isReddit) {
+        async function fetchAndRenderFeed(feedUrl, containerId, sourceName, isReddit) {
             const container = document.getElementById(containerId);
             
             try {
@@ -389,26 +416,32 @@
                     throw new Error('Failed to fetch feed data or feed is empty.');
                 }
 
-                container.innerHTML = ''; 
+                // If this is the first successful fetch for a container, clear the loading message
+                if (container.textContent.includes('Loading')) {
+                    container.innerHTML = ''; 
+                }
                 
                 // Process and render cards
                 data.items.slice(0, 10).forEach(item => {
-                    const card = createNewsCard(item, isReddit);
+                    const card = createNewsCard(item, sourceName, isReddit);
                     if (card) { // Card is null if link is hidden
                         container.appendChild(card);
                     }
                 });
 
             } catch (error) {
-                console.error(`Error fetching or rendering feed for ${containerId}:`, error);
-                container.innerHTML = `<p style="color: red; text-align: center; width: 100%;">Error loading feed. (Status: ${error.message})</p>`;
+                console.error(`Error fetching or rendering feed for ${containerId} (${sourceName}):`, error);
+                // Only show error if the container is still showing 'Loading'
+                if (container.textContent.includes('Loading')) {
+                    container.innerHTML = `<p style="color: red; text-align: center; width: 100%;">Error loading feed: ${sourceName}</p>`;
+                }
             }
         }
 
         /**
          * Creates an HTML card element for a single news item.
          */
-        function createNewsCard(item, isReddit) {
+        function createNewsCard(item, sourceName, isReddit) {
             // Check if the link is permanently hidden
             if (HIDDEN_LINKS.has(item.link)) {
                 return null; // Skip rendering
@@ -444,6 +477,7 @@
 
             card.innerHTML = `
                 <div class="card-controls">
+                    <span>Source: ${sourceName}</span>
                     <button onclick="hideTileForever(this, '${item.link}')">Hide Forever</button>
                 </div>
                 <div>
