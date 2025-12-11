@@ -9,11 +9,11 @@
         /* --- CSS Styling and Variables --- */
         :root {
             /* Light Theme Defaults */
-            --primary-color: #2c3e50; /* Dark Blue - Header */
-            --accent-color: #3498db;  /* Bright Blue - Links */
-            --secondary-accent-1: #2ecc71; /* Green - SEJ */
-            --secondary-accent-2: #f1c40f; /* Yellow - Brand New */
-            --background-color: #ecf0f1; /* Light Gray */
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --secondary-accent-1: #2ecc71;
+            --secondary-accent-2: #f1c40f;
+            --background-color: #ecf0f1;
             --card-background: #ffffff;
             --text-color: #34495e;
             --secondary-text-color: #7f8c8d;
@@ -22,13 +22,13 @@
 
         /* Dark Mode Variables */
         body.dark-mode {
-            --primary-color: #9b59b6; /* Purple Accent - Header */
+            --primary-color: #9b59b6;
             --accent-color: #3498db;
-            --secondary-accent-1: #1abc9c; /* Teal - SEJ */
-            --secondary-accent-2: #e67e22; /* Orange - Brand New */
-            --background-color: #2c3e50; /* Dark Background */
-            --card-background: #34495e; /* Slightly Lighter Dark Card */
-            --text-color: #ecf0f1; /* Light Text */
+            --secondary-accent-1: #1abc9c;
+            --secondary-accent-2: #e67e22;
+            --background-color: #2c3e50;
+            --card-background: #34495e;
+            --text-color: #ecf0f1;
             --secondary-text-color: #bdc3c7;
             --border-color: #49627a;
         }
@@ -42,21 +42,40 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Header and Dark Mode Toggle */
+        /* Header, Search, and Dark Mode Toggle */
         header {
             background-color: var(--primary-color);
             color: white;
             padding: 20px 40px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 15px;
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         header h1 { margin: 0; }
+
+        #search-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+        }
 
         #theme-toggle {
             padding: 8px 15px;
@@ -116,7 +135,7 @@
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s, border-color 0.3s;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s, border-color 0.3s, opacity 0.3s;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -167,8 +186,13 @@
 </head>
 <body class="light-mode">
     <header>
-        <h1>Industry News Dashboard (5 Feeds)</h1>
-        <button id="theme-toggle">Switch to Dark Mode</button>
+        <div class="header-top">
+            <h1>Industry News Dashboard (5 Feeds)</h1>
+            <button id="theme-toggle">Switch to Dark Mode</button>
+        </div>
+        <div id="search-container">
+            <input type="text" id="search-input" placeholder="Start searching titles and descriptions..." onkeyup="filterCards()">
+        </div>
     </header>
     
     <div id="marketing-dive-feed" class="feed-section">
@@ -197,9 +221,8 @@
     </div>
     
     <script>
-        /* --- JavaScript for Fetching, Rendering, and Dark Mode --- */
+        /* --- JavaScript for Fetching, Rendering, Dark Mode, and Filtering --- */
 
-        // Define the five feeds we want to fetch
         const FEEDS = [
             { id: 'marketing-dive-feed', url: 'https://www.marketingdive.com/feeds/news' },
             { id: 'search-engine-journal-feed', url: 'https://www.searchenginejournal.com/feed/' },
@@ -208,7 +231,6 @@
             { id: 'tldr-feed', url: 'https://www.tldr.tech/rss' }
         ];
         
-        // Base URL for the public proxy
         const RSS_TO_JSON_PROXY_BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
         
         /**
@@ -226,9 +248,8 @@
                     throw new Error('Failed to fetch feed data or feed is empty.');
                 }
 
-                container.innerHTML = ''; // Clear loading message
+                container.innerHTML = ''; 
                 
-                // Render the top 10 items
                 data.items.slice(0, 10).forEach(item => {
                     const card = createNewsCard(item);
                     container.appendChild(card);
@@ -247,7 +268,6 @@
             const card = document.createElement('div');
             card.className = 'news-card';
             
-            // Format the date
             const pubDate = new Date(item.pubDate).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
             });
@@ -264,6 +284,10 @@
                 descriptionText = descriptionText.substring(0, 177) + '...';
             }
 
+            // Store search data in custom attributes for easy filtering
+            card.setAttribute('data-search-title', item.title.toLowerCase());
+            card.setAttribute('data-search-desc', descriptionText.toLowerCase());
+
 
             card.innerHTML = `
                 <div>
@@ -274,6 +298,30 @@
             `;
             return card;
         }
+        
+        /**
+         * Filters the news cards based on the search input value.
+         */
+        function filterCards() {
+            const input = document.getElementById('search-input');
+            const filter = input.value.toLowerCase();
+            const cards = document.querySelectorAll('.news-card');
+
+            cards.forEach(card => {
+                const title = card.getAttribute('data-search-title');
+                const description = card.getAttribute('data-search-desc');
+
+                // Check if the filter term is found in the title OR description
+                if (title.includes(filter) || description.includes(filter)) {
+                    card.style.display = 'flex'; // Show the card
+                } else {
+                    card.style.display = 'none'; // Hide the card
+                }
+            });
+        }
+        
+        // Expose filterCards function globally since it's used in onkeyup
+        window.filterCards = filterCards;
 
         /**
          * Toggles between light and dark mode and saves preference.
@@ -297,10 +345,8 @@
 
         // --- Initialize Dashboard ---
         
-        // 1. Setup dark mode
         setupDarkModeToggle();
 
-        // 2. Fetch and render all defined feeds concurrently
         FEEDS.forEach(feed => {
             fetchAndRenderFeed(feed.url, feed.id);
         });
