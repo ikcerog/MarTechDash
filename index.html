@@ -176,7 +176,7 @@
 
         /* --- VIEW CONTROLS CSS --- */
         
-        /* Default: GRID VIEW (for editorial and all community feeds) */
+        /* FIX: Ensures the news-grid container is always the multi-column parent in Grid View */
         .news-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -185,7 +185,8 @@
 
         /* LIST VIEW: Overrides Grid for editorial sections when body has list-view class */
         body.list-view .feed-section:not(#community-pulse-feed) .news-grid {
-            display: flex; /* Change display model to list-like */
+            /* Override grid to be a list container */
+            display: flex; 
             flex-direction: column;
             gap: 10px; 
         }
@@ -194,7 +195,6 @@
             flex-direction: row;
             align-items: center;
             padding: 15px 20px;
-            /* Ensure list cards take full width but keep display:flex for internal alignment */
             width: auto; 
         }
         
@@ -257,7 +257,7 @@
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: all 0.2s;
-            /* Explicitly define how cards behave in grid layout */
+            /* Ensure cards are properly sized by the grid container */
             display: flex; 
             flex-direction: column;
             justify-content: space-between;
@@ -386,14 +386,12 @@
             { id: 'branding-advertising-feed', url: 'https://feeds.feedburner.com/Adpulp', source: 'AdPulp' },
             
             // Ad Technology (4 Feeds)
-            // FIX: Updated AdExchanger URL
             { id: 'ad-tech-feed', url: 'https://www.adexchanger.com/feed/', source: 'AdExchanger' },
             { id: 'ad-tech-feed', url: 'https://adtechdaily.com/feed/', source: 'Ad Tech Daily' },
             { id: 'ad-tech-feed', url: 'https://videoweek.com/feed/', source: 'VideoWeek' },
             { id: 'ad-tech-feed', url: 'https://advertisemint.com/feed/', source: 'AdvertiseMint' },
             
             // FinTech & Finance
-            // FIX: Replaced unreliable The Financial Brand with a stable alternative
             { id: 'fintech-new-feed', url: 'https://fintechnews.hk/feed/', source: 'Fintech News HK' }, 
             
             // Tech & Culture
@@ -588,6 +586,7 @@
                 const description = card.getAttribute('data-search-desc');
                 
                 if (title.includes(filter) || description.includes(filter)) {
+                    // In grid view, cards display as flex (column)
                     card.style.display = 'flex'; 
                 } else {
                     card.style.display = 'none'; 
@@ -595,12 +594,11 @@
             });
         }
         
-        // FIX: Error was here, ensuring we correctly find the target section element
         function toggleSection(button) {
             const targetId = button.getAttribute('data-target');
             const section = document.getElementById(targetId);
 
-            if (!section) return; // Safely exit if target isn't found
+            if (!section) return;
 
             if (section.classList.contains('hidden')) {
                 section.style.maxHeight = '5000px'; 
@@ -626,10 +624,8 @@
                 toggleButton.textContent = newTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
             });
             
-            // Re-select all filter buttons to ensure the event listener works
             const filterButtons = document.querySelectorAll('.controls-row .control-button[data-target]');
             filterButtons.forEach(button => {
-                // Ensure no double-binding if script re-runs
                 button.removeEventListener('click', toggleSection); 
                 button.addEventListener('click', () => {
                     toggleSection(button);
