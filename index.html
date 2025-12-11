@@ -157,12 +157,13 @@
         #fintech-new-feed h2, #tech-culture-feed h2 { border-bottom-color: var(--secondary-accent-3); color: var(--secondary-accent-3); }
 
 
+        /* *** CARD GRID FIX *** */
         .news-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
         }
-        
+
         .reddit-subsection {
             margin-top: 10px;
             padding: 10px;
@@ -183,7 +184,8 @@
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: all 0.2s;
-            display: flex;
+            /* Flex layout ensures description pushes date to bottom */
+            display: flex; 
             flex-direction: column;
             justify-content: space-between;
         }
@@ -223,14 +225,6 @@
         .news-card h4 a { color: var(--accent-color); text-decoration: none; transition: color 0.2s; }
         .news-card h4 a:hover { color: var(--primary-color); }
         body.dark-mode .news-card h4 a:hover { color: white; }
-
-        .news-card .date {
-            font-size: 0.8em;
-            color: var(--secondary-text-color);
-            margin-top: 10px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 10px;
-        }
 
         .news-card .description {
             font-size: 0.9em;
@@ -294,7 +288,7 @@
         const EDITORIAL_FEEDS = [
             { id: 'core-marketing-feed', url: 'https://www.marketingdive.com/feeds/news' },
             { id: 'branding-advertising-feed', url: 'https://www.adweek.com/feed/' }, 
-            { id: 'fintech-new-feed', url: 'https://thefinancialbrand.com/feed/' }, // New reliable FinTech feed
+            { id: 'fintech-new-feed', url: 'https://thefinancialbrand.com/feed/' }, 
             { id: 'tech-culture-feed', url: 'https://www.wired.com/feed/rss' }, 
         ];
         
@@ -329,7 +323,7 @@
         /**
          * Hides a tile and adds its link to the persistence list.
          */
-        function hideTileForever(button, link) {
+        window.hideTileForever = function(button, link) {
             const card = button.closest('.news-card');
             if (card && link) {
                 card.classList.add('hidden-tile');
@@ -338,12 +332,14 @@
             }
         }
         
-        // Expose function globally for the reset button
+        /**
+         * Resets all hidden tiles and reloads the page.
+         */
         window.resetHiddenTiles = function() {
             if (confirm("Are you sure you want to reset all permanently hidden news tiles? This cannot be undone.")) {
                 localStorage.removeItem('hiddenNewsLinks');
                 HIDDEN_LINKS = new Set();
-                location.reload(); // Reload to show all tiles again
+                location.reload(); 
             }
         }
 
@@ -357,18 +353,24 @@
             });
             
             // Reddit Feeds
-            const communityContainer = document.getElementById('community-pulse-container');
-            communityContainer.innerHTML = ''; // Clear initial loading message
+            const communityContainer = document.getElementById('community-pulse-feed');
+            let communityGridHTML = '<div id="community-pulse-container">';
             
             for (const feed of REDDIT_FEEDS) {
-                // Create container for subreddit
-                const subredditDiv = document.createElement('div');
-                subredditDiv.className = 'reddit-subsection';
-                subredditDiv.innerHTML = `<h3>r/${feed.id.split('/')[1]}</h3><div class="news-grid" id="${feed.id}-grid">Loading...</div>`;
-                communityContainer.appendChild(subredditDiv);
-                
-                await fetchAndRenderFeed(feed.url, `${feed.id}-grid`, true); // Is a Reddit feed
+                // Fetch and render data directly into a sub-grid element
+                const subredditId = feed.id.split('/')[1];
+                communityGridHTML += `<div class="reddit-subsection">
+                                          <h3>r/${subredditId}</h3>
+                                          <div class="news-grid" id="${feed.id}-grid">Loading...</div>
+                                      </div>`;
             }
+            communityGridHTML += '</div>';
+            communityContainer.querySelector('div').innerHTML = communityGridHTML;
+
+            // Run the fetches sequentially/in parallel for each reddit feed
+            REDDIT_FEEDS.forEach(feed => {
+                 fetchAndRenderFeed(feed.url, `${feed.id}-grid`, true);
+            });
         }
 
 
@@ -459,7 +461,6 @@
         function filterCards() {
             const input = document.getElementById('search-input');
             const filter = input.value.toLowerCase();
-            // Select only cards that are NOT already permanently hidden
             const cards = document.querySelectorAll('.news-card:not(.hidden-tile)');
 
             cards.forEach(card => {
@@ -482,7 +483,7 @@
             const section = document.getElementById(targetId);
 
             if (section.classList.contains('hidden')) {
-                section.style.maxHeight = '5000px'; // Increased height for multiple Reddit subsections
+                section.style.maxHeight = '5000px'; 
                 section.classList.remove('hidden');
                 button.classList.add('active');
             } else {
@@ -495,7 +496,6 @@
          * Sets up all control buttons (filters and dark mode).
          */
         function setupControls() {
-            // Dark Mode setup remains the same
             const body = document.body;
             const toggleButton = document.getElementById('theme-toggle');
             const savedTheme = localStorage.getItem('theme') || 'light-mode';
@@ -509,7 +509,6 @@
                 toggleButton.textContent = newTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
             });
             
-            // Section Toggles setup
             const filterButtons = document.querySelectorAll('.controls-row .control-button:not(#theme-toggle):not(#reset-hidden-button)');
             filterButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -523,7 +522,6 @@
         
         // Expose functions globally
         window.filterCards = filterCards;
-        window.hideTileForever = hideTileForever;
 
         // 1. Load hidden tiles from storage
         loadHiddenLinks();
