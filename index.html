@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comprehensive Industry News Dashboard</title>
+    <title>Marketing & Creative News Hub</title>
     
     <style>
         /* --- CSS Styling and Variables --- */
@@ -11,8 +11,9 @@
             /* Light Theme Defaults */
             --primary-color: #2c3e50;
             --accent-color: #3498db;
-            --secondary-accent-1: #2ecc71;
-            --secondary-accent-2: #f1c40f;
+            --secondary-accent-1: #2ecc71; /* SEO */
+            --secondary-accent-2: #f1c40f; /* Branding */
+            --secondary-accent-3: #e74c3c; /* Creative */
             --background-color: #ecf0f1;
             --card-background: #ffffff;
             --text-color: #34495e;
@@ -26,6 +27,7 @@
             --accent-color: #3498db;
             --secondary-accent-1: #1abc9c;
             --secondary-accent-2: #e67e22;
+            --secondary-accent-3: #c0392b;
             --background-color: #2c3e50;
             --card-background: #34495e;
             --text-color: #ecf0f1;
@@ -42,7 +44,7 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Header, Search, and Dark Mode Toggle */
+        /* Header, Search, and Toggles */
         header {
             background-color: var(--primary-color);
             color: white;
@@ -62,22 +64,29 @@
             align-items: center;
         }
 
-        header h1 { margin: 0; }
+        header h1 { margin: 0; font-size: 1.8em; }
 
-        #search-container {
-            width: 100%;
-            max-width: 600px;
-        }
-
+        /* Search Input */
         #search-input {
             width: 100%;
             padding: 10px;
             border: none;
             border-radius: 4px;
             font-size: 1em;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: var(--primary-color);
         }
 
-        #theme-toggle {
+        /* Control Buttons Container */
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* Theme and Filter Buttons */
+        .control-button {
             padding: 8px 15px;
             border: 1px solid white;
             background-color: transparent;
@@ -85,11 +94,18 @@
             cursor: pointer;
             border-radius: 4px;
             font-size: 0.9em;
-            transition: background-color 0.2s, color 0.2s;
+            transition: background-color 0.2s, opacity 0.2s, border-color 0.2s;
         }
 
-        #theme-toggle:hover {
+        .control-button:hover {
             background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Highlight active filter button */
+        .control-button.active {
+            background-color: white;
+            color: var(--primary-color);
+            border-color: white;
         }
 
         /* Feed Sections */
@@ -97,6 +113,17 @@
             padding: 20px;
             max-width: 1400px;
             margin: 0 auto;
+            transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+            overflow: hidden;
+        }
+        
+        .feed-section.hidden {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
         }
 
         .feed-section h2 {
@@ -114,14 +141,10 @@
         }
         
         /* Specific header colors for flair */
-        #search-engine-journal-feed h2 {
-            border-bottom-color: var(--secondary-accent-1);
-            color: var(--secondary-accent-1);
-        }
-        #brand-new-feed h2 {
-            border-bottom-color: var(--secondary-accent-2);
-            color: var(--secondary-accent-2);
-        }
+        #seo-search-feed h2 { border-bottom-color: var(--secondary-accent-1); color: var(--secondary-accent-1); }
+        #branding-design-feed h2 { border-bottom-color: var(--secondary-accent-2); color: var(--secondary-accent-2); }
+        #creative-content-feed h2 { border-bottom-color: var(--secondary-accent-3); color: var(--secondary-accent-3); }
+
 
         .news-grid {
             display: grid;
@@ -135,7 +158,7 @@
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s, border-color 0.3s, opacity 0.3s;
+            transition: all 0.2s;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -146,26 +169,10 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
 
-        .news-card h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.15em;
-            line-height: 1.4;
-        }
-
-        .news-card h3 a {
-            color: var(--accent-color);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .news-card h3 a:hover {
-            color: var(--primary-color);
-        }
-
-        body.dark-mode .news-card h3 a:hover {
-            color: white;
-        }
+        .news-card h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.15em; line-height: 1.4; }
+        .news-card h3 a { color: var(--accent-color); text-decoration: none; transition: color 0.2s; }
+        .news-card h3 a:hover { color: var(--primary-color); }
+        body.dark-mode .news-card h3 a:hover { color: white; }
 
         .news-card .date {
             font-size: 0.8em;
@@ -187,48 +194,57 @@
 <body class="light-mode">
     <header>
         <div class="header-top">
-            <h1>Industry News Dashboard (5 Feeds)</h1>
-            <button id="theme-toggle">Switch to Dark Mode</button>
+            <h1>Marketing & Creative News Hub</h1>
+            <button id="theme-toggle" class="control-button">Switch to Dark Mode</button>
         </div>
+        
         <div id="search-container">
-            <input type="text" id="search-input" placeholder="Start searching titles and descriptions..." onkeyup="filterCards()">
+            <input type="text" id="search-input" placeholder="Start searching across all feeds..." onkeyup="filterCards()">
+        </div>
+        
+        <div class="controls-row">
+            <button id="toggle-core-marketing" class="control-button active" data-target="core-marketing-feed">Core Marketing & Advertising</button>
+            <button id="toggle-branding" class="control-button active" data-target="branding-design-feed">Branding & Iconic Design</button>
+            <button id="toggle-creative" class="control-button active" data-target="creative-content-feed">Creative & Content Strategy</button>
+            <button id="toggle-seo" class="control-button active" data-target="seo-search-feed">SEO & Search Marketing</button>
+            <button id="toggle-tech" class="control-button active" data-target="tech-webdev-feed">Tech & Web Development</button>
         </div>
     </header>
     
-    <div id="marketing-dive-feed" class="feed-section">
-        <h2>📈 Marketing Dive (Daily Industry News)</h2>
-        <div class="news-grid">Loading Marketing Dive...</div>
+    <div id="core-marketing-feed" class="feed-section">
+        <h2>📈 Core Marketing & Advertising (Marketing Dive)</h2>
+        <div class="news-grid">Loading Core Marketing...</div>
     </div>
 
-    <div id="search-engine-journal-feed" class="feed-section">
-        <h2>🔍 Search Engine Journal (SEO & Search Marketing)</h2>
-        <div class="news-grid">Loading Search Engine Journal...</div>
+    <div id="branding-design-feed" class="feed-section">
+        <h2>🎨 Branding & Iconic Design (Brand New)</h2>
+        <div class="news-grid">Loading Branding...</div>
     </div>
 
-    <div id="brand-new-feed" class="feed-section">
-        <h2>🎨 Brand New (Iconic Brand & Corporate Design)</h2>
-        <div class="news-grid">Loading Brand New...</div>
+    <div id="creative-content-feed" class="feed-section">
+        <h2>🖋️ Creative & Content Strategy (A List Apart)</h2>
+        <div class="news-grid">Loading Creative...</div>
     </div>
 
-    <div id="alist-apart-feed" class="feed-section">
-        <h2>💻 A List Apart (Creatives, Design, & Web Content)</h2>
-        <div class="news-grid">Loading A List Apart...</div>
+    <div id="seo-search-feed" class="feed-section">
+        <h2>🔍 SEO & Search Marketing (Search Engine Journal)</h2>
+        <div class="news-grid">Loading SEO...</div>
     </div>
     
-    <div id="tldr-feed" class="feed-section">
-        <h2>⚡ TLDR (Webdev, Tech, & General Design)</h2>
-        <div class="news-grid">Loading TLDR...</div>
+    <div id="tech-webdev-feed" class="feed-section">
+        <h2>⚡ Tech & Web Development (TLDR)</h2>
+        <div class="news-grid">Loading Tech...</div>
     </div>
     
     <script>
-        /* --- JavaScript for Fetching, Rendering, Dark Mode, and Filtering --- */
+        /* --- JavaScript for Fetching, Rendering, Dark Mode, Filtering, and Toggling --- */
 
         const FEEDS = [
-            { id: 'marketing-dive-feed', url: 'https://www.marketingdive.com/feeds/news' },
-            { id: 'search-engine-journal-feed', url: 'https://www.searchenginejournal.com/feed/' },
-            { id: 'brand-new-feed', url: 'http://feeds.feedburner.com/BrandNew' },
-            { id: 'alist-apart-feed', url: 'https://alistapart.com/main/feed/' },
-            { id: 'tldr-feed', url: 'https://www.tldr.tech/rss' }
+            { id: 'core-marketing-feed', url: 'https://www.marketingdive.com/feeds/news' },
+            { id: 'branding-design-feed', url: 'http://feeds.feedburner.com/BrandNew' },
+            { id: 'creative-content-feed', url: 'https://alistapart.com/main/feed/' },
+            { id: 'seo-search-feed', url: 'https://www.searchenginejournal.com/feed/' },
+            { id: 'tech-webdev-feed', url: 'https://www.tldr.tech/rss' }
         ];
         
         const RSS_TO_JSON_PROXY_BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
@@ -272,7 +288,6 @@
                 month: 'short', day: 'numeric', year: 'numeric'
             });
 
-            // Safely extract text content for description and limit length
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = item.description || item.content || 'Click link for details.';
             
@@ -284,7 +299,6 @@
                 descriptionText = descriptionText.substring(0, 177) + '...';
             }
 
-            // Store search data in custom attributes for easy filtering
             card.setAttribute('data-search-title', item.title.toLowerCase());
             card.setAttribute('data-search-desc', descriptionText.toLowerCase());
 
@@ -310,26 +324,39 @@
             cards.forEach(card => {
                 const title = card.getAttribute('data-search-title');
                 const description = card.getAttribute('data-search-desc');
-
-                // Check if the filter term is found in the title OR description
+                
+                // Hide or show based on search term presence
                 if (title.includes(filter) || description.includes(filter)) {
-                    card.style.display = 'flex'; // Show the card
+                    card.style.display = 'flex'; 
                 } else {
-                    card.style.display = 'none'; // Hide the card
+                    card.style.display = 'none'; 
                 }
             });
         }
         
-        // Expose filterCards function globally since it's used in onkeyup
-        window.filterCards = filterCards;
+        /**
+         * Toggles the visibility of a specific feed section.
+         */
+        function toggleSection(button) {
+            const targetId = button.getAttribute('data-target');
+            const section = document.getElementById(targetId);
+
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden');
+                button.classList.add('active');
+            } else {
+                section.classList.add('hidden');
+                button.classList.remove('active');
+            }
+        }
 
         /**
-         * Toggles between light and dark mode and saves preference.
+         * Sets up all control buttons (filters and dark mode).
          */
-        function setupDarkModeToggle() {
+        function setupControls() {
+            // Dark Mode
             const body = document.body;
             const toggleButton = document.getElementById('theme-toggle');
-
             const savedTheme = localStorage.getItem('theme') || 'light-mode';
             body.className = savedTheme;
             toggleButton.textContent = savedTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
@@ -340,13 +367,26 @@
                 localStorage.setItem('theme', newTheme);
                 toggleButton.textContent = newTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
             });
+            
+            // Section Toggles
+            const filterButtons = document.querySelectorAll('.controls-row .control-button:not(#theme-toggle)');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    toggleSection(button);
+                });
+            });
         }
 
 
         // --- Initialize Dashboard ---
         
-        setupDarkModeToggle();
+        // Expose filterCards globally
+        window.filterCards = filterCards;
 
+        // 1. Setup controls (Dark Mode and Buttons)
+        setupControls();
+
+        // 2. Fetch and render all defined feeds concurrently
         FEEDS.forEach(feed => {
             fetchAndRenderFeed(feed.url, feed.id);
         });
