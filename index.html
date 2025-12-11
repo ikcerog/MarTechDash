@@ -89,7 +89,7 @@
             justify-content: center;
         }
 
-        /* Theme and Filter Buttons */
+        /* Theme, View, and Filter Buttons */
         .control-button {
             padding: 8px 15px;
             border: 1px solid white;
@@ -111,6 +111,20 @@
             color: var(--primary-color);
             border-color: white;
         }
+        
+        /* View Toggle Specific Styling */
+        #view-toggle-row {
+            display: flex;
+            gap: 5px;
+            border-right: 1px solid rgba(255, 255, 255, 0.5);
+            padding-right: 15px;
+            margin-right: 5px;
+        }
+        .view-button.active {
+            background-color: white;
+            color: var(--primary-color);
+        }
+
         
         #reset-hidden-button {
             background-color: var(--hide-color);
@@ -160,12 +174,67 @@
         #ad-tech-feed h2 { border-bottom-color: var(--secondary-accent-4); color: var(--secondary-accent-4); }
 
 
-        /* *** CARD GRID FIX *** */
+        /* --- VIEW CONTROLS CSS --- */
+        
+        /* Default: GRID VIEW (for editorial and all community feeds) */
         .news-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
         }
+
+        /* LIST VIEW: Overrides Grid for editorial sections when body has list-view class */
+        body.list-view .feed-section:not(#community-pulse-feed) .news-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Reduced gap for list feel */
+        }
+        
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card {
+            flex-direction: row;
+            align-items: center;
+            padding: 15px 20px;
+            height: auto;
+        }
+        
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card > div:first-child {
+            /* Controls and Source */
+            order: 3; 
+        }
+        
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card h4 {
+            flex-basis: 50%;
+            margin: 0;
+            font-size: 1.1em;
+            order: 1;
+        }
+        
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card .description {
+            display: none; /* Hide description in list view for scannability */
+        }
+        
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card .date {
+            border-top: none;
+            padding-top: 0;
+            margin-top: 0;
+            font-size: 0.9em;
+            order: 2;
+            flex-basis: 150px;
+            text-align: right;
+        }
+        
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card .card-controls {
+            flex-basis: 120px;
+            justify-content: flex-end;
+            margin: 0 0 0 10px;
+            order: 4;
+        }
+        
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card .card-controls span {
+            display: none; /* Hide source in list view to save space */
+        }
+        /* --- END VIEW CONTROLS CSS --- */
+
 
         .reddit-subsection {
             margin-bottom: 20px;
@@ -256,6 +325,11 @@
         </div>
         
         <div class="controls-row">
+            <div id="view-toggle-row">
+                <button id="grid-view-button" class="view-button control-button" onclick="setListView('grid')">Grid View</button>
+                <button id="list-view-button" class="view-button control-button" onclick="setListView('list')">List View</button>
+            </div>
+            
             <button id="toggle-core-marketing" class="control-button active" data-target="core-marketing-feed">Core Marketing</button>
             <button id="toggle-branding" class="control-button active" data-target="branding-advertising-feed">Branding & Campaigns</button>
             <button id="toggle-adtech" class="control-button active" data-target="ad-tech-feed">Ad Technology</button>
@@ -298,7 +372,7 @@
     </div>
     
     <script>
-        /* --- JavaScript for Fetching, Rendering, Dark Mode, Filtering, Toggling, and PERSISTENCE --- */
+        /* --- JavaScript for Fetching, Rendering, Dark Mode, Filtering, Toggling, Persistence, and VIEW --- */
 
         const EDITORIAL_FEEDS = [
             // Core Marketing
@@ -333,9 +407,39 @@
         const RSS_TO_JSON_PROXY_BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
         let HIDDEN_LINKS = new Set();
         
+        // --- VIEW TOGGLE LOGIC ---
+        
         /**
-         * Initializes the set of hidden links from Local Storage.
+         * Sets the dashboard view (grid or list) and saves it to local storage.
          */
+        window.setListView = function(view) {
+            const body = document.body;
+            const gridButton = document.getElementById('grid-view-button');
+            const listButton = document.getElementById('list-view-button');
+
+            if (view === 'list') {
+                body.classList.add('list-view');
+                listButton.classList.add('active');
+                gridButton.classList.remove('active');
+                localStorage.setItem('newsView', 'list');
+            } else {
+                body.classList.remove('list-view');
+                gridButton.classList.add('active');
+                listButton.classList.remove('active');
+                localStorage.setItem('newsView', 'grid');
+            }
+        }
+
+        /**
+         * Loads the view preference from local storage on initialization.
+         */
+        function loadViewPreference() {
+            const savedView = localStorage.getItem('newsView') || 'grid';
+            setListView(savedView);
+        }
+
+        // --- PERSISTENCE LOGIC ---
+        
         function loadHiddenLinks() {
             const storedLinks = localStorage.getItem('hiddenNewsLinks');
             if (storedLinks) {
@@ -343,16 +447,10 @@
             }
         }
         
-        /**
-         * Saves the current set of hidden links to Local Storage.
-         */
         function saveHiddenLinks() {
             localStorage.setItem('hiddenNewsLinks', JSON.stringify(Array.from(HIDDEN_LINKS)));
         }
 
-        /**
-         * Hides a tile and adds its link to the persistence list.
-         */
         window.hideTileForever = function(button, link) {
             const card = button.closest('.news-card');
             if (card && link) {
@@ -362,9 +460,6 @@
             }
         }
         
-        /**
-         * Resets all hidden tiles and reloads the page.
-         */
         window.resetHiddenTiles = function() {
             if (confirm("Are you sure you want to reset all permanently hidden news tiles? This cannot be undone.")) {
                 localStorage.removeItem('hiddenNewsLinks');
@@ -373,15 +468,14 @@
             }
         }
 
-        /**
-         * Fetches and renders all feeds.
-         */
+        // --- FETCH & RENDER LOGIC ---
+
         async function fetchAndRenderAllFeeds() {
             // Editorial Feeds
             const fetchEditorialPromises = EDITORIAL_FEEDS.map(feed => fetchAndRenderFeed(feed.url, feed.id, feed.source, false));
             await Promise.all(fetchEditorialPromises);
             
-            // Reddit Feeds
+            // Reddit Feeds setup
             const communityContainer = document.getElementById('community-pulse-container');
             let communityGridHTML = '';
             
@@ -401,9 +495,6 @@
         }
 
 
-        /**
-         * Fetches and renders a single RSS feed into a specified container.
-         */
         async function fetchAndRenderFeed(feedUrl, containerId, sourceName, isReddit) {
             const container = document.getElementById(containerId);
             
@@ -416,35 +507,28 @@
                     throw new Error('Failed to fetch feed data or feed is empty.');
                 }
 
-                // If this is the first successful fetch for a container, clear the loading message
                 if (container.textContent.includes('Loading')) {
                     container.innerHTML = ''; 
                 }
                 
-                // Process and render cards
                 data.items.slice(0, 10).forEach(item => {
                     const card = createNewsCard(item, sourceName, isReddit);
-                    if (card) { // Card is null if link is hidden
+                    if (card) { 
                         container.appendChild(card);
                     }
                 });
 
             } catch (error) {
                 console.error(`Error fetching or rendering feed for ${containerId} (${sourceName}):`, error);
-                // Only show error if the container is still showing 'Loading'
                 if (container.textContent.includes('Loading')) {
                     container.innerHTML = `<p style="color: red; text-align: center; width: 100%;">Error loading feed: ${sourceName}</p>`;
                 }
             }
         }
 
-        /**
-         * Creates an HTML card element for a single news item.
-         */
         function createNewsCard(item, sourceName, isReddit) {
-            // Check if the link is permanently hidden
             if (HIDDEN_LINKS.has(item.link)) {
-                return null; // Skip rendering
+                return null; 
             }
             
             const card = document.createElement('div');
@@ -467,7 +551,6 @@
             
             let cleanTitle = item.title;
             if (isReddit) {
-                // Clean up Reddit titles
                 cleanTitle = item.title.replace(/^(.*?):\s*/, '').trim();
             }
 
@@ -489,9 +572,8 @@
             return card;
         }
         
-        /**
-         * Filters the news cards based on the search input value.
-         */
+        // --- UTILITY LOGIC ---
+        
         function filterCards() {
             const input = document.getElementById('search-input');
             const filter = input.value.toLowerCase();
@@ -509,9 +591,6 @@
             });
         }
         
-        /**
-         * Toggles the visibility of a specific feed section.
-         */
         function toggleSection(button) {
             const targetId = button.getAttribute('data-target');
             const section = document.getElementById(targetId);
@@ -526,9 +605,6 @@
             }
         }
 
-        /**
-         * Sets up all control buttons (filters and dark mode).
-         */
         function setupControls() {
             const body = document.body;
             const toggleButton = document.getElementById('theme-toggle');
@@ -554,16 +630,16 @@
 
         // --- Initialize Dashboard ---
         
-        // Expose functions globally
         window.filterCards = filterCards;
 
-        // 1. Load hidden tiles from storage
+        // 1. Load persistence data
         loadHiddenLinks();
+        loadViewPreference(); // Load view preference *before* rendering to apply CSS correctly
 
-        // 2. Setup controls (Dark Mode and Buttons)
+        // 2. Setup controls
         setupControls();
 
-        // 3. Fetch and render all defined feeds concurrently
+        // 3. Fetch and render all defined feeds
         fetchAndRenderAllFeeds();
     </script>
 </body>
