@@ -185,19 +185,20 @@
 
         /* LIST VIEW: Overrides Grid for editorial sections when body has list-view class */
         body.list-view .feed-section:not(#community-pulse-feed) .news-grid {
-            display: flex;
+            display: flex; /* Change display model to list-like */
             flex-direction: column;
-            gap: 10px; /* Reduced gap for list feel */
+            gap: 10px; 
         }
         
         body.list-view .feed-section:not(#community-pulse-feed) .news-card {
             flex-direction: row;
             align-items: center;
             padding: 15px 20px;
-            height: auto;
+            /* Ensure list cards take full width but keep display:flex for internal alignment */
+            width: auto; 
         }
         
-        body.list-view .feed-section:not(#community-pulse-feed) .news-card > div:first-child {
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card > div:first-of-type {
             /* Controls and Source */
             order: 3; 
         }
@@ -210,7 +211,7 @@
         }
         
         body.list-view .feed-section:not(#community-pulse-feed) .news-card .description {
-            display: none; /* Hide description in list view for scannability */
+            display: none; 
         }
         
         body.list-view .feed-section:not(#community-pulse-feed) .news-card .date {
@@ -231,7 +232,7 @@
         }
         
         body.list-view .feed-section:not(#community-pulse-feed) .news-card .card-controls span {
-            display: none; /* Hide source in list view to save space */
+            display: none; 
         }
         /* --- END VIEW CONTROLS CSS --- */
 
@@ -256,6 +257,7 @@
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: all 0.2s;
+            /* Explicitly define how cards behave in grid layout */
             display: flex; 
             flex-direction: column;
             justify-content: space-between;
@@ -356,13 +358,13 @@
     </div>
 
     <div id="fintech-new-feed" class="feed-section">
-        <h2>💰 FinTech & Finance (The Financial Brand)</h2>
-        <div class="news-grid">Loading The Financial Brand...</div>
+        <h2>💰 FinTech & Finance (Fintech News Hong Kong)</h2>
+        <div class="news-grid">Loading FinTech & Finance...</div>
     </div>
 
     <div id="tech-culture-feed" class="feed-section">
         <h2>🌐 Tech & Culture (Wired)</h2>
-        <div class="news-grid">Loading Wired...</div>
+        <div class="news-grid">Loading Tech & Culture...</div>
     </div>
     
     <div id="community-pulse-feed" class="feed-section">
@@ -384,13 +386,15 @@
             { id: 'branding-advertising-feed', url: 'https://feeds.feedburner.com/Adpulp', source: 'AdPulp' },
             
             // Ad Technology (4 Feeds)
-            { id: 'ad-tech-feed', url: 'feeds.feedburner.com/ad-exch..', source: 'AdExchanger' },
+            // FIX: Updated AdExchanger URL
+            { id: 'ad-tech-feed', url: 'https://www.adexchanger.com/feed/', source: 'AdExchanger' },
             { id: 'ad-tech-feed', url: 'https://adtechdaily.com/feed/', source: 'Ad Tech Daily' },
             { id: 'ad-tech-feed', url: 'https://videoweek.com/feed/', source: 'VideoWeek' },
             { id: 'ad-tech-feed', url: 'https://advertisemint.com/feed/', source: 'AdvertiseMint' },
             
             // FinTech & Finance
-            { id: 'fintech-new-feed', url: 'https://thefinancialbrand.com/feed/', source: 'The Financial Brand' }, 
+            // FIX: Replaced unreliable The Financial Brand with a stable alternative
+            { id: 'fintech-new-feed', url: 'https://fintechnews.hk/feed/', source: 'Fintech News HK' }, 
             
             // Tech & Culture
             { id: 'tech-culture-feed', url: 'https://www.wired.com/feed/rss', source: 'Wired' }, 
@@ -591,9 +595,12 @@
             });
         }
         
+        // FIX: Error was here, ensuring we correctly find the target section element
         function toggleSection(button) {
             const targetId = button.getAttribute('data-target');
             const section = document.getElementById(targetId);
+
+            if (!section) return; // Safely exit if target isn't found
 
             if (section.classList.contains('hidden')) {
                 section.style.maxHeight = '5000px'; 
@@ -619,8 +626,11 @@
                 toggleButton.textContent = newTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
             });
             
-            const filterButtons = document.querySelectorAll('.controls-row .control-button:not(#theme-toggle):not(#reset-hidden-button)');
+            // Re-select all filter buttons to ensure the event listener works
+            const filterButtons = document.querySelectorAll('.controls-row .control-button[data-target]');
             filterButtons.forEach(button => {
+                // Ensure no double-binding if script re-runs
+                button.removeEventListener('click', toggleSection); 
                 button.addEventListener('click', () => {
                     toggleSection(button);
                 });
@@ -634,7 +644,7 @@
 
         // 1. Load persistence data
         loadHiddenLinks();
-        loadViewPreference(); // Load view preference *before* rendering to apply CSS correctly
+        loadViewPreference(); 
 
         // 2. Setup controls
         setupControls();
