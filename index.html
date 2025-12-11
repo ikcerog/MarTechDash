@@ -11,10 +11,10 @@
             /* Light Theme Defaults */
             --primary-color: #2c3e50;
             --accent-color: #3498db;
-            --secondary-accent-1: #2ecc71; /* Community (Reddit) */
-            --secondary-accent-2: #e67e22; /* Branding/Adweek */
-            --secondary-accent-3: #16a085; /* FinTech/Tech */
-            --secondary-accent-4: #f39c12; /* AdTech */
+            --secondary-accent-1: #2ecc71; 
+            --secondary-accent-2: #e67e22; 
+            --secondary-accent-3: #16a085; 
+            --secondary-accent-4: #f39c12; 
             --background-color: #ecf0f1;
             --card-background: #ffffff;
             --text-color: #34495e;
@@ -39,6 +39,22 @@
             --hide-color: #c0392b;
         }
 
+        /* Midnight Mode Variables */
+        body.midnight-mode {
+            --primary-color: #0d1a26;
+            --accent-color: #5d9cec;
+            --secondary-accent-1: #48c9b0; 
+            --secondary-accent-2: #f5b041; 
+            --secondary-accent-3: #45b39d; 
+            --secondary-accent-4: #f7dc6f; 
+            --background-color: #010409;
+            --card-background: #0d1117;
+            --text-color: #c9d1d9;
+            --secondary-text-color: #8b949e;
+            --border-color: #30363d;
+            --hide-color: #ff7b72;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -48,7 +64,7 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Header, Search, and Toggles */
+        /* Header Styling */
         header {
             background-color: var(--primary-color);
             color: white;
@@ -60,6 +76,16 @@
             position: sticky;
             top: 0;
             z-index: 100;
+        }
+        
+        /* NEW: Header Max-Width Container */
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .header-top {
@@ -112,6 +138,13 @@
             border-color: white;
         }
         
+        body.dark-mode .control-button.active, body.midnight-mode .control-button.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        
         /* View Toggle Specific Styling */
         #view-toggle-row {
             display: flex;
@@ -124,6 +157,10 @@
             background-color: white;
             color: var(--primary-color);
         }
+        body.dark-mode .view-button.active, body.midnight-mode .view-button.active {
+            background-color: var(--text-color);
+            color: var(--primary-color);
+        }
 
         
         #reset-hidden-button {
@@ -131,8 +168,7 @@
             border-color: var(--hide-color);
         }
         #reset-hidden-button:hover {
-            background-color: var(--secondary-accent-1);
-            border-color: var(--secondary-accent-1);
+            opacity: 0.8;
         }
 
         /* Feed Sections */
@@ -162,38 +198,35 @@
             font-size: 1.5em;
         }
 
-        body.dark-mode .feed-section h2 {
+        body.dark-mode .feed-section h2, body.midnight-mode .feed-section h2 {
             border-bottom-color: var(--accent-color);
             color: var(--text-color);
         }
         
         /* Specific header colors for flair */
-        #community-pulse-feed h2 { border-bottom-color: var(--secondary-accent-1); color: var(--secondary-accent-1); }
-        #branding-advertising-feed h2 { border-bottom-color: var(--secondary-accent-2); color: var(--secondary-accent-2); }
-        #fintech-new-feed h2, #tech-culture-feed h2 { border-bottom-color: var(--secondary-accent-3); color: var(--secondary-accent-3); }
-        #ad-tech-feed h2 { border-bottom-color: var(--secondary-accent-4); color: var(--secondary-accent-4); }
+        #community-pulse-feed h2 { color: var(--secondary-accent-1); }
+        #branding-advertising-feed h2 { color: var(--secondary-accent-2); }
+        #fintech-new-feed h2, #tech-culture-feed h2 { color: var(--secondary-accent-3); }
+        #ad-tech-feed h2 { color: var(--secondary-accent-4); }
 
 
-        /* --- VIEW CONTROLS CSS --- */
+        /* --- VIEW CONTROLS CSS (Grid and List) --- */
         
         /* Default: GRID VIEW (Multi-Column) */
         .news-grid {
             display: grid;
-            /* Enforce responsive grid columns */
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
         }
         
-        /* news-card defaults */
         .news-card {
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
-        /* LIST VIEW: Overrides Grid for editorial sections when body has list-view class */
+        /* LIST VIEW: Overrides Grid */
         body.list-view .feed-section:not(#community-pulse-feed) .news-grid {
-            /* Override grid to be a list container */
             display: flex; 
             flex-direction: column;
             gap: 10px; 
@@ -206,11 +239,6 @@
             width: auto; 
         }
         
-        body.list-view .feed-section:not(#community-pulse-feed) .news-card > div:first-of-type {
-            /* Controls and Source */
-            order: 3; 
-        }
-        
         body.list-view .feed-section:not(#community-pulse-feed) .news-card h4 {
             flex-basis: 50%;
             margin: 0;
@@ -218,25 +246,38 @@
             order: 1;
         }
         
-        body.list-view .feed-section:not(#community-pulse-feed) .news-card .description {
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card .description,
+        /* Hide the default card controls in List View */
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card > .card-controls {
             display: none; 
         }
         
+        /* Target the combined date and control container in List View */
+        body.list-view .feed-section:not(#community-pulse-feed) .news-card .date-and-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; 
+            gap: 20px;
+            flex-grow: 1; 
+            order: 2;
+        }
+
+        /* Adjustments for elements inside the new container */
         body.list-view .feed-section:not(#community-pulse-feed) .news-card .date {
             border-top: none;
             padding-top: 0;
-            margin-top: 0;
+            margin: 0;
             font-size: 0.9em;
-            order: 2;
-            flex-basis: 150px;
-            text-align: right;
+            flex-shrink: 0; 
         }
         
         body.list-view .feed-section:not(#community-pulse-feed) .news-card .card-controls {
-            flex-basis: 120px;
+            /* This is the inner .card-controls inside .date-and-controls */
+            display: flex !important; /* Override display:none from above */
+            flex-basis: auto;
             justify-content: flex-end;
-            margin: 0 0 0 10px;
-            order: 4;
+            margin: 0;
+            flex-shrink: 0; 
         }
         
         body.list-view .feed-section:not(#community-pulse-feed) .news-card .card-controls span {
@@ -276,11 +317,12 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
         
+        /* Default Grid View Controls */
         .card-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 5px;
+            margin-bottom: 5px; 
         }
         
         .card-controls span {
@@ -308,7 +350,7 @@
         .news-card h4 { margin: 0 0 10px 0; font-size: 1.15em; line-height: 1.4; }
         .news-card h4 a { color: var(--accent-color); text-decoration: none; transition: color 0.2s; }
         .news-card h4 a:hover { color: var(--primary-color); }
-        body.dark-mode .news-card h4 a:hover { color: white; }
+        body.dark-mode .news-card h4 a:hover, body.midnight-mode .news-card h4 a:hover { color: var(--text-color); }
 
         .news-card .description {
             font-size: 0.9em;
@@ -321,28 +363,30 @@
 </head>
 <body class="light-mode">
     <header>
-        <div class="header-top">
-            <h1>Personalized AdTech & Branding Hub</h1>
-            <button id="theme-toggle" class="control-button">Switch to Dark Mode</button>
-        </div>
-        
-        <div id="search-container">
-            <input type="text" id="search-input" placeholder="Start searching across all feeds..." onkeyup="filterCards()">
-        </div>
-        
-        <div class="controls-row">
-            <div id="view-toggle-row">
-                <button id="grid-view-button" class="view-button control-button" onclick="setListView('grid')">Grid View</button>
-                <button id="list-view-button" class="view-button control-button" onclick="setListView('list')">List View</button>
+        <div class="header-content">
+            <div class="header-top">
+                <h1>Personalized AdTech & Branding Hub</h1>
+                <button id="theme-toggle" class="control-button">☀️ Switch to Dark Mode</button>
             </div>
             
-            <button id="toggle-core-marketing" class="control-button active" data-target="core-marketing-feed">Core Marketing</button>
-            <button id="toggle-branding" class="control-button active" data-target="branding-advertising-feed">Branding & Campaigns</button>
-            <button id="toggle-adtech" class="control-button active" data-target="ad-tech-feed">Ad Technology</button>
-            <button id="toggle-fintech" class="control-button active" data-target="fintech-new-feed">FinTech & Finance</button>
-            <button id="toggle-tech" class="control-button active" data-target="tech-culture-feed">Tech & Culture</button>
-            <button id="toggle-community" class="control-button active" data-target="community-pulse-feed">Community Pulse (Reddit)</button>
-            <button id="reset-hidden-button" class="control-button" onclick="resetHiddenTiles()">Reset Hidden Tiles</button>
+            <div id="search-container">
+                <input type="text" id="search-input" placeholder="Start searching across all feeds..." onkeyup="filterCards()">
+            </div>
+            
+            <div class="controls-row">
+                <div id="view-toggle-row">
+                    <button id="grid-view-button" class="view-button control-button" onclick="setListView('grid')">Grid View</button>
+                    <button id="list-view-button" class="view-button control-button" onclick="setListView('list')">List View</button>
+                </div>
+                
+                <button id="toggle-core-marketing" class="control-button active" data-target="core-marketing-feed">Core Marketing</button>
+                <button id="toggle-branding" class="control-button active" data-target="branding-advertising-feed">Branding & Campaigns</button>
+                <button id="toggle-adtech" class="control-button active" data-target="ad-tech-feed">Ad Technology</button>
+                <button id="toggle-fintech" class="control-button active" data-target="fintech-new-feed">FinTech & Finance</button>
+                <button id="toggle-tech" class="control-button active" data-target="tech-culture-feed">Tech & Culture</button>
+                <button id="toggle-community" class="control-button active" data-target="community-pulse-feed">Community Pulse (Reddit)</button>
+                <button id="reset-hidden-button" class="control-button" onclick="resetHiddenTiles()">Reset Hidden Tiles</button>
+            </div>
         </div>
     </header>
     
@@ -388,27 +432,18 @@
     </div>
     
     <script>
-        /* --- JavaScript for Fetching, Rendering, Dark Mode, Filtering, Toggling, Persistence, and VIEW --- */
+        /* --- JavaScript for Theme Switching, Fetching, Rendering, and Controls --- */
 
         const EDITORIAL_FEEDS = [
-            // Core Marketing
             { id: 'core-marketing-feed', url: 'https://www.marketingdive.com/feeds/news', source: 'Marketing Dive' },
-            
-            // Branding & Campaigns (3 Feeds)
             { id: 'branding-advertising-feed', url: 'https://www.adweek.com/feed/', source: 'Adweek' }, 
             { id: 'branding-advertising-feed', url: 'https://www.moreaboutadvertising.com/feed/', source: 'More About Adv.' },
             { id: 'branding-advertising-feed', url: 'https://feeds.feedburner.com/Adpulp', source: 'AdPulp' },
-            
-            // Ad Technology (4 Feeds)
             { id: 'ad-tech-feed', url: 'https://www.adexchanger.com/feed/', source: 'AdExchanger' },
             { id: 'ad-tech-feed', url: 'https://adtechdaily.com/feed/', source: 'Ad Tech Daily' },
             { id: 'ad-tech-feed', url: 'https://videoweek.com/feed/', source: 'VideoWeek' },
             { id: 'ad-tech-feed', url: 'https://advertisemint.com/feed/', source: 'AdvertiseMint' },
-            
-            // FinTech & Finance
             { id: 'fintech-new-feed', url: 'https://fintechnews.hk/feed/', source: 'Fintech News HK' }, 
-            
-            // Tech & Culture
             { id: 'tech-culture-feed', url: 'https://www.wired.com/feed/rss', source: 'Wired' }, 
         ];
         
@@ -423,11 +458,38 @@
         const RSS_TO_JSON_PROXY_BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
         let HIDDEN_LINKS = new Set();
         
+        // --- THEME LOGIC (New Triple Mode) ---
+        const THEMES = ['light-mode', 'dark-mode', 'midnight-mode'];
+        const THEME_LABELS = {
+            'light-mode': '☀️ Switch to Dark Mode',
+            'dark-mode': '🌙 Switch to Midnight Mode',
+            'midnight-mode': '🌌 Switch to Light Mode'
+        };
+
+        function toggleTheme() {
+            const body = document.body;
+            const toggleButton = document.getElementById('theme-toggle');
+            let currentTheme = localStorage.getItem('theme') || 'light-mode';
+            
+            const currentIndex = THEMES.indexOf(currentTheme);
+            const nextIndex = (currentIndex + 1) % THEMES.length;
+            const newTheme = THEMES[nextIndex];
+
+            body.className = newTheme;
+            localStorage.setItem('theme', newTheme);
+            toggleButton.textContent = THEME_LABELS[newTheme];
+        }
+
+        function loadThemePreference() {
+            const body = document.body;
+            const toggleButton = document.getElementById('theme-toggle');
+            const savedTheme = localStorage.getItem('theme') || 'light-mode';
+            body.className = savedTheme;
+            toggleButton.textContent = THEME_LABELS[savedTheme];
+        }
+        
         // --- VIEW TOGGLE LOGIC ---
         
-        /**
-         * Sets the dashboard view (grid or list) and saves it to local storage.
-         */
         window.setListView = function(view) {
             const body = document.body;
             const gridButton = document.getElementById('grid-view-button');
@@ -446,15 +508,12 @@
             }
         }
 
-        /**
-         * Loads the view preference from local storage on initialization.
-         */
         function loadViewPreference() {
             const savedView = localStorage.getItem('newsView') || 'grid';
             setListView(savedView);
         }
 
-        // --- PERSISTENCE LOGIC ---
+        // --- PERSISTENCE & UTILITY LOGIC ---
         
         function loadHiddenLinks() {
             const storedLinks = localStorage.getItem('hiddenNewsLinks');
@@ -483,6 +542,51 @@
                 location.reload(); 
             }
         }
+        
+        window.filterCards = function() {
+            const input = document.getElementById('search-input');
+            const filter = input.value.toLowerCase();
+            const cards = document.querySelectorAll('.news-card:not(.hidden-tile)');
+
+            cards.forEach(card => {
+                const title = card.getAttribute('data-search-title');
+                const description = card.getAttribute('data-search-desc');
+                
+                if (title.includes(filter) || description.includes(filter)) {
+                    card.style.display = ''; 
+                } else {
+                    card.style.display = 'none'; 
+                }
+            });
+        }
+        
+        function toggleSection(button) {
+            const targetId = button.getAttribute('data-target');
+            const section = document.getElementById(targetId);
+
+            if (!section) return;
+
+            if (section.classList.contains('hidden')) {
+                section.style.maxHeight = '5000px'; 
+                section.classList.remove('hidden');
+                button.classList.add('active');
+            } else {
+                section.classList.add('hidden');
+                button.classList.remove('active');
+            }
+        }
+
+        function setupControls() {
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+            
+            const filterButtons = document.querySelectorAll('.controls-row .control-button[data-target]');
+            filterButtons.forEach(button => {
+                button.removeEventListener('click', toggleSection); 
+                button.addEventListener('click', () => {
+                    toggleSection(button);
+                });
+            });
+        }
 
         // --- FETCH & RENDER LOGIC ---
 
@@ -504,7 +608,6 @@
             }
             communityContainer.innerHTML = communityGridHTML;
 
-            // Run the fetches sequentially/in parallel for each reddit feed
             REDDIT_FEEDS.forEach(feed => {
                  fetchAndRenderFeed(feed.url, `${feed.id}-grid`, feed.id, true);
             });
@@ -512,8 +615,8 @@
 
 
         async function fetchAndRenderFeed(feedUrl, containerId, sourceName, isReddit) {
-            // FIX: Get the INNER .news-grid container
-            const gridContainer = document.getElementById(containerId).querySelector('.news-grid') || document.getElementById(containerId);
+            const sectionDiv = document.getElementById(containerId);
+            const gridContainer = sectionDiv.querySelector('.news-grid') || document.getElementById(containerId);
             
             try {
                 const proxyUrl = `${RSS_TO_JSON_PROXY_BASE}${encodeURIComponent(feedUrl)}`;
@@ -524,7 +627,6 @@
                     throw new Error('Failed to fetch feed data or feed is empty.');
                 }
 
-                // FIX: Only clear the content *inside* the grid container, preserving the H2 and the parent structure
                 if (gridContainer.textContent.includes('Loading')) {
                     gridContainer.innerHTML = ''; 
                 }
@@ -575,7 +677,6 @@
             card.setAttribute('data-search-title', cleanTitle.toLowerCase());
             card.setAttribute('data-search-desc', descriptionText.toLowerCase());
 
-
             card.innerHTML = `
                 <div class="card-controls">
                     <span>Source: ${sourceName}</span>
@@ -585,78 +686,24 @@
                     <h4><a href="${item.link}" target="_blank" rel="noopener noreferrer">${cleanTitle}</a></h4>
                     <p class="description">${descriptionText}</p>
                 </div>
-                <p class="date">Published: ${pubDate}</p>
+                
+                <div class="date-and-controls">
+                    <p class="date">Published: ${pubDate}</p>
+                    <div class="card-controls">
+                        <button onclick="hideTileForever(this.closest('.news-card').querySelector('button'), '${item.link}')">Hide</button>
+                    </div>
+                </div>
             `;
             return card;
-        }
-        
-        // --- UTILITY LOGIC ---
-        
-        function filterCards() {
-            const input = document.getElementById('search-input');
-            const filter = input.value.toLowerCase();
-            const cards = document.querySelectorAll('.news-card:not(.hidden-tile)');
-
-            cards.forEach(card => {
-                const title = card.getAttribute('data-search-title');
-                const description = card.getAttribute('data-search-desc');
-                
-                if (title.includes(filter) || description.includes(filter)) {
-                    // Revert display to default grid/list behavior
-                    card.style.display = ''; 
-                } else {
-                    card.style.display = 'none'; 
-                }
-            });
-        }
-        
-        function toggleSection(button) {
-            const targetId = button.getAttribute('data-target');
-            const section = document.getElementById(targetId);
-
-            if (!section) return;
-
-            if (section.classList.contains('hidden')) {
-                section.style.maxHeight = '5000px'; 
-                section.classList.remove('hidden');
-                button.classList.add('active');
-            } else {
-                section.classList.add('hidden');
-                button.classList.remove('active');
-            }
-        }
-
-        function setupControls() {
-            const body = document.body;
-            const toggleButton = document.getElementById('theme-toggle');
-            const savedTheme = localStorage.getItem('theme') || 'light-mode';
-            body.className = savedTheme;
-            toggleButton.textContent = savedTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-
-            toggleButton.addEventListener('click', () => {
-                const newTheme = body.classList.contains('dark-mode') ? 'light-mode' : 'dark-mode';
-                body.className = newTheme;
-                localStorage.setItem('theme', newTheme);
-                toggleButton.textContent = newTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-            });
-            
-            const filterButtons = document.querySelectorAll('.controls-row .control-button[data-target]');
-            filterButtons.forEach(button => {
-                button.removeEventListener('click', toggleSection); 
-                button.addEventListener('click', () => {
-                    toggleSection(button);
-                });
-            });
         }
 
 
         // --- Initialize Dashboard ---
         
-        window.filterCards = filterCards;
-
-        // 1. Load persistence data
+        // 1. Load persistence and preferences
         loadHiddenLinks();
         loadViewPreference(); 
+        loadThemePreference();
 
         // 2. Setup controls
         setupControls();
