@@ -11,7 +11,7 @@
             /* Light Theme Defaults */
             --primary-color: #2c3e50;
             --accent-color: #3498db;
-            --secondary-accent-1: #2ecc71; /* SEO */
+            --secondary-accent-1: #2ecc71; /* Community (Reddit) */
             --secondary-accent-2: #e67e22; /* Branding/Adweek */
             --secondary-accent-3: #16a085; /* FinTech/Tech */
             --background-color: #ecf0f1;
@@ -141,7 +141,7 @@
         }
         
         /* Specific header colors for flair */
-        #seo-search-feed h2 { border-bottom-color: var(--secondary-accent-1); color: var(--secondary-accent-1); }
+        #community-pulse-feed h2 { border-bottom-color: var(--secondary-accent-1); color: var(--secondary-accent-1); }
         #branding-advertising-feed h2 { border-bottom-color: var(--secondary-accent-2); color: var(--secondary-accent-2); }
         #fintech-finance-feed h2 { border-bottom-color: var(--secondary-accent-3); color: var(--secondary-accent-3); }
         #tech-culture-feed h2 { border-bottom-color: var(--secondary-accent-3); color: var(--secondary-accent-3); }
@@ -207,8 +207,8 @@
             <button id="toggle-core-marketing" class="control-button active" data-target="core-marketing-feed">Core Marketing</button>
             <button id="toggle-branding" class="control-button active" data-target="branding-advertising-feed">Branding & Advertising</button>
             <button id="toggle-fintech" class="control-button active" data-target="fintech-finance-feed">FinTech & Finance</button>
-            <button id="toggle-tech" class="control-button active" data-target="tech-culture-feed">Tech & Culture (Wired)</button>
-            <button id="toggle-seo" class="control-button active" data-target="seo-search-feed">SEO & Search</button>
+            <button id="toggle-tech" class="control-button active" data-target="tech-culture-feed">Tech & Culture</button>
+            <button id="toggle-community" class="control-button active" data-target="community-pulse-feed">Community Pulse (r/marketing)</button>
         </div>
     </header>
     
@@ -232,9 +232,9 @@
         <div class="news-grid">Loading Wired...</div>
     </div>
     
-    <div id="seo-search-feed" class="feed-section">
-        <h2>🔍 SEO & Search Marketing (Search Engine Journal)</h2>
-        <div class="news-grid">Loading SEO...</div>
+    <div id="community-pulse-feed" class="feed-section">
+        <h2>🗣️ Community Pulse (r/marketing)</h2>
+        <div class="news-grid">Loading r/marketing...</div>
     </div>
     
     <script>
@@ -244,8 +244,8 @@
             { id: 'core-marketing-feed', url: 'https://www.marketingdive.com/feeds/news' },
             { id: 'branding-advertising-feed', url: 'https://www.adweek.com/feed/' }, 
             { id: 'fintech-finance-feed', url: 'https://www.fintechfutures.com/feed/' }, 
-            { id: 'tech-culture-feed', url: 'https://www.wired.com/feed/rss' }, // Strategic Tech/Brand focus
-            { id: 'seo-search-feed', url: 'https://www.searchenginejournal.com/feed/' }
+            { id: 'tech-culture-feed', url: 'https://www.wired.com/feed/rss' }, 
+            { id: 'community-pulse-feed', url: 'https://www.reddit.com/r/marketing.rss' } // New Community Feed
         ];
         
         const RSS_TO_JSON_PROXY_BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
@@ -267,6 +267,7 @@
 
                 container.innerHTML = ''; 
                 
+                // Reddit feeds sometimes have boilerplate, so limiting to 8 or 10 is good.
                 data.items.slice(0, 10).forEach(item => {
                     const card = createNewsCard(item);
                     container.appendChild(card);
@@ -300,13 +301,19 @@
                 descriptionText = descriptionText.substring(0, 177) + '...';
             }
 
-            card.setAttribute('data-search-title', item.title.toLowerCase());
+            // Clean up Reddit titles (remove r/marketing, etc.) for a cleaner display
+            let cleanTitle = item.title;
+            if (item.title.includes('r/marketing')) {
+                cleanTitle = item.title.replace(/^(.*?):\s*/, '').trim();
+            }
+
+            card.setAttribute('data-search-title', cleanTitle.toLowerCase());
             card.setAttribute('data-search-desc', descriptionText.toLowerCase());
 
 
             card.innerHTML = `
                 <div>
-                    <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a></h3>
+                    <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer">${cleanTitle}</a></h3>
                     <p class="description">${descriptionText}</p>
                 </div>
                 <p class="date">Published: ${pubDate}</p>
